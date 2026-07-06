@@ -317,6 +317,13 @@ class SixServoArmCalculator {
         return servoTargetDegree;
     } //获取舵机目标位置数组
     private double[] servoSpeed={0.36,0.24,0.24,0.24,0.24,0.24};//sec per 60 degree
+    /**
+     * 获取各舵机的名义速度（秒/60°），供 time-scaling 等模块使用。
+     * 返回数组的克隆，避免外部修改影响内部状态。
+     */
+    double[] getServoSpeed() {
+        return servoSpeed.clone();
+    }
     boolean[] servoFinishedMoving = {false, false, false, false, false, false}; //舵机是否完成正在移动
     boolean servoFinishedMovingAll = false; //所有舵机是否完成移动
     long lastUpdateTime = 0; //上次更新时间
