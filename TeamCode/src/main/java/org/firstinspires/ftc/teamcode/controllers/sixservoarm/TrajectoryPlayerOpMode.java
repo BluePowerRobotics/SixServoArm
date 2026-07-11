@@ -49,29 +49,34 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
     //  可配置参数（通过 FTC Dashboard 实时调整）
     // ========================================================================
 
-    public static double controlFreq   = 25.0;
+    //TODO check FRS
+    public static double controlFreq   = 100;
     //通过“慢放时间”实现减慢速度，不会影响插值表中时刻的对应。
     //e.g. 1.0s的轨迹，lowSpeedFactor=0.5 时实际播放需要 2.0s。原本0.5s的位置在低速模式下会在1.0s时刻播放出来。
     public static double lowSpeedFactor = 0.5;
+
+    //TODO Tune this
     public static double minStepDeg    = 0.5;
     public static double wakeupDeg     = 0.0;
 
     /** 超时因子：实际耗时 > 预期耗时 × timeoutFactor 则强制停止（0=禁用超时检测）。 */
-    public static double timeoutFactor = 5.0;
+    public static double timeoutFactor = 0;
 
-    public static double homeX = 100.0;
-    public static double homeY = 0.0;
-    public static double homeZ = 50.0;
+    public static double homeX = 0;
+    public static double homeY = 100;
+    public static double homeZ = 30.0;
 
-    public static double clipHeadingRadian = 0.0;
+    public static double clipHeadingRadian = -Math.PI / 2;
+    public static double RadianAroundArm3 = 0;
 
-    public static double startX = 50.0;
-    public static double startY = -50.0;
-    public static double startZ = 30.0;
-    public static double endX   = 50.0;
+    public static double startX = 0;
+    public static double startY = 150;
+    public static double startZ = 100;
+    public static double endX   = 0;
     public static double endY   = 50.0;
-    public static double endZ   = 80.0;
+    public static double endZ   = 100;
 
+    //TODO tune this
     public static int numSamples = 50;
 
     // ========================================================================
@@ -179,10 +184,9 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
     // ========================================================================
 
     private void tickIdle() {
-        // B — 生成轨迹并开始播放
+        // B — 生成轨迹并运动到起始点
         if (gamepad1.b) {
             generateAndStart();
-            //sleepSafe(300);
             return;
         }
 
@@ -242,6 +246,7 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
         }
 
         // 轨迹结束
+        //TODO check最后是不是突然“闪”到终点。是的说明中间没跟上
         if (curT >= trajTotalDuration) {
             double[] finalDegs = activeTraj.get(trajN - 1).jointDegrees;
             outputter.setDegree(finalDegs);
@@ -289,10 +294,10 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
 
         // 播放中 telemetry
         telemetry.addData("State", "PLAYING");
-        telemetry.addData("t_traj / total", "%.2f / %.2f s", curT, trajTotalDuration);
+        telemetry.addData("当前实际时间（经过缩放） / 轨迹总*预期*时间", "%.2f / %.2f s", curT, trajTotalDuration);
         telemetry.addData("lowSpeedFactor", "%.2f", lowSpeedFactor);
-        telemetry.addData("segment", "%d / %d", trajCurrentSegment, trajN - 1);
-        telemetry.addData("send_delay_us", "%d", sendDelayNs / 1000);
+        telemetry.addData("阶段(points - 1)?", "%d / %d", trajCurrentSegment, trajN - 1);
+        telemetry.addData("send_delay_ms", "%d", sendDelayNs / 1000_000);
         telemetry.addData("Y=ToggleSpeed", "");
     }
 
@@ -301,16 +306,21 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
     // ========================================================================
 
     private void generateAndStart() {
+
+        long genStartNano = System.nanoTime();
+
         Point3D startPt = new Point3D(startX, startY, startZ);
         Point3D endPt   = new Point3D(endX, endY, endZ);
 
         List<StraightLineTrajectoryGenerator.TrajectoryPoint> rawPts =
                 StraightLineTrajectoryGenerator.generateLine(
-                        startPt, endPt, clipHeadingRadian, numSamples);
+                        startPt, endPt, clipHeadingRadian,RadianAroundArm3 ,SixServoArmOutputter.ClipOpenPosition,numSamples);
 
         List<StraightLineTrajectoryGenerator.TimedTrajectoryPoint> timedPts =
                 StraightLineTrajectoryGenerator.timeScaleByServoSpeed(
                         rawPts, minStepDeg, wakeupDeg);
+
+        long genTimeMs = (System.nanoTime() - genStartNano) / 1_000_000;
 
         if (timedPts == null || timedPts.size() < 2) {
             telemetry.addLine("Trajectory too short — aborting.");
@@ -348,6 +358,7 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
 
         telemetry.addLine("=== Moving arm to start ===");
         telemetry.addData("Points", trajN);
+        telemetry.addData("Gen time (ms)", "%d", genTimeMs);
         telemetry.addData("Duration (s)", "%.2f", trajTotalDuration / lowSpeedFactor);
         telemetry.addLine("Press B when arm is at start position.");
 
@@ -376,7 +387,7 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
         for (int j = 0; j < 4; j++) {
             homeDegs[j] = Math.toDegrees(radians[j]);
         }
-        homeDegs[4] = 0.0;
+        homeDegs[4] = -(Math.PI / 2);
         homeDegs[5] = SixServoArmOutputter.toDegree(5, SixServoArmOutputter.ClipOpenPosition);
         outputter.setDegree(homeDegs);
 

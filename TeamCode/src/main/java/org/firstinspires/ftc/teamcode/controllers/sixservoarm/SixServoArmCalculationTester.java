@@ -17,6 +17,7 @@ import java.util.Arrays;
 @TeleOp(name = "sixServoArmTest", group = "TEST")
 public class SixServoArmCalculationTester extends LinearOpMode {
     static Point3D SearchPoint = new Point3D(0, 150, 100);
+    public static Point3D HomePoint = new Point3D(0, 100, 30);
     public static double deltaX = 15;//
     public static double deltaY = 125;
     SixServoArmController sixServoArmController;
@@ -26,7 +27,7 @@ public class SixServoArmCalculationTester extends LinearOpMode {
         telemetry = InstanceTelemetry.init(telemetry);
         Cv.init(hardwareMap, telemetry, 0);
         sixServoArmController=new SixServoArmController(hardwareMap);
-        sixServoArmController.setTargetPosition(new Point3D(0, 100, 30), (-Math.PI / 2), 0);
+        sixServoArmController.setTargetPosition(HomePoint, (-Math.PI / 2), 0);
     }
     @Override
     public void runOpMode() throws InterruptedException {
@@ -105,7 +106,6 @@ public class SixServoArmCalculationTester extends LinearOpMode {
         if(gamepad1.dpadRightWasPressed()){
             //lock
             sixServoArmController.setClip(true);
-
         }
         if(gamepad1.dpadDownWasPressed()){
             //go to drop position
