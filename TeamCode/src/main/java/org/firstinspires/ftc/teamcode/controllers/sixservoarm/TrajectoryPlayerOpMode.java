@@ -196,6 +196,7 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
         telemetry.addData("A=Home", "B=Start  Y=Speed");
         telemetry.addData("Line", "(%.0f,%.0f,%.0f)→(%.0f,%.0f,%.0f)",
                 startX, startY, startZ, endX, endY, endZ);
+        telemetry.addData("RadianAroundArm3", "%.2f", RadianAroundArm3);
     }
 
     // ========================================================================
@@ -387,7 +388,7 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
         for (int j = 0; j < 4; j++) {
             homeDegs[j] = Math.toDegrees(radians[j]);
         }
-        homeDegs[4] = -(Math.PI / 2);
+        homeDegs[4] = RadianAroundArm3;
         homeDegs[5] = SixServoArmOutputter.toDegree(5, SixServoArmOutputter.ClipOpenPosition);
         outputter.setDegree(homeDegs);
 
