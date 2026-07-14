@@ -69,12 +69,12 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
     public static double clipHeadingRadian = -Math.PI / 2;
     public static double RadianAroundArm3 = 0;
 
-    public static double startX = 0;
-    public static double startY = 150;
+    public static double startX = 15;
+    public static double startY = 50;
     public static double startZ = 100;
-    public static double endX   = 0;
+    public static double endX   = -15;
     public static double endY   = 50.0;
-    public static double endZ   = 100;
+    public static double endZ   = 0;
 
     //TODO tune this
     public static int numSamples = 50;
@@ -315,7 +315,9 @@ public class TrajectoryPlayerOpMode extends LinearOpMode {
 
         List<StraightLineTrajectoryGenerator.TrajectoryPoint> rawPts =
                 StraightLineTrajectoryGenerator.generateLine(
-                        startPt, endPt, clipHeadingRadian,RadianAroundArm3 ,SixServoArmOutputter.ClipOpenPosition,numSamples);
+                        startPt, endPt, clipHeadingRadian, RadianAroundArm3,
+                        SixServoArmOutputter.toDegree(5, SixServoArmOutputter.ClipOpenPosition),
+                        numSamples);
 
         List<StraightLineTrajectoryGenerator.TimedTrajectoryPoint> timedPts =
                 StraightLineTrajectoryGenerator.timeScaleByServoSpeed(

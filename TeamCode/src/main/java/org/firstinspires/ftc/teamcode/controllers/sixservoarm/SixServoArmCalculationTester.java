@@ -45,7 +45,7 @@ public class SixServoArmCalculationTester extends LinearOpMode {
             }
         }
     }
-    boolean TestMode=true;
+    boolean TestMode=false;
     public void addTele(){
         last_time_ms=now_time_ms;
         now_time_ms=System.currentTimeMillis();
@@ -154,7 +154,7 @@ public class SixServoArmCalculationTester extends LinearOpMode {
         }
     }
     public long now_time_ms,last_time_ms,last_set_time_ms;
-    Point3D targetPoint = new Point3D(0,150,20);
+    Point3D targetPoint = new Point3D(0, 100, 30);
     double targetClipHeadingRadian=0;
     double targetRadianAroundArm3=0;
 }

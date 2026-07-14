@@ -86,7 +86,7 @@ class SixServoArmOutputter{
         this.hardwareMap=hardwareMap;
         this.telemetry= InstanceTelemetry.getTelemetry();
         for(int i = 0; i < servo.length; i++){
-            servo[i] = hardwareMap.get(Servo.class, "servoc" + i);
+            servo[i] = hardwareMap.get(Servo.class, "servoe" + i);
             if(i == 1 || i == 4){
                 servo[i].setDirection(Servo.Direction.REVERSE);
             }else{

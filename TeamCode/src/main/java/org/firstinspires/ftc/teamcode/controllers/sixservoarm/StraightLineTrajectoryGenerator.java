@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.controllers.sixservoarm;
 
-import org.firstinspires.ftc.teamcode.utility.Point3D;
+import com.acmerobotics.dashboard.config.Config;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import org.firstinspires.ftc.teamcode.utility.Point3D;
 
 /**
  * 三维直线轨迹生成器与 time-scaling 工具。
@@ -30,7 +32,9 @@ import java.util.Locale;
  *   <li>5：夹爪开合角</li>
  * </ul>
  */
+@Config
 public class StraightLineTrajectoryGenerator {
+    public static double minDistanceBetweenPoints = 1.6666666666;
 
     // ========================================================================
     //  数据类
@@ -90,6 +94,28 @@ public class StraightLineTrajectoryGenerator {
 
         if (numSamples < 2) {
             throw new IllegalArgumentException("numSamples must be >= 2");
+        }
+
+        // 限制最大采样点数，防止步长过小导致相邻插值点 x/y 浮点值相等，
+        // 从而触发下游 "x must be strictly increasing" 之类的报错。
+        double distance = Point3D.distance(start,end);
+        int maxPoints = (int) (distance / minDistanceBetweenPoints);
+
+        if (numSamples > maxPoints) {
+            numSamples = maxPoints;
+        }
+
+        // 检查起点与终点的 X/Y 是否几乎相同：若相同则线性插值表全部 (x,y) 重复，
+        // 会导致 IK 解算或其他下游逻辑出现未定义行为，提前给出清晰报错。
+        // 使用容差比较，避免 double 直接 == 的精度问题。
+        final double EPS = 1e-9;
+        if (Math.abs(start.getX() - end.getX()) < EPS
+                && Math.abs(start.getY() - end.getY()) < EPS) {
+            throw new IllegalArgumentException(
+                    "Start and end points have nearly identical (x, y) = (" 
+                    + start.getX() + ", " + start.getY() + "). "
+                    + "This produces duplicate (x, y) in the interpolation table."
+            );
         }
 
         SixServoArmCalculator calculator = new SixServoArmCalculator();
