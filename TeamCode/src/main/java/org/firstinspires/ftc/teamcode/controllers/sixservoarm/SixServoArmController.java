@@ -99,8 +99,9 @@ class SixServoArmOutputter{
     public static double ClipLockPosition = 0.8;
 
     private Servo[] servo = new Servo[6];
-    public static double[] servoZeroPositionDegree = {19.90211745904914,-44.9752747253,33.5013262599,48.535188216,-72.58297644539614,0};
-    public static double[] servoRangeDegree = {179.7842588893328, 247.2527472527472, 265.25198938992037, 245.4991816693945, 240.89935760171304, 170};//舵机总旋转角度    public static double[] x1 ={0.09,0.24,0.87,0.47,0.32};
+    public static double[] servoZeroPositionDegree = {19.90211745904914,-44.9752747253,11.5553060079,48.535188216,-72.58297644539614,0};
+    public static double[] servoRangeDegree = {179.7842588893328, 247.2527472527472, 168.4446939921, 245.4991816693945, 240.89935760171304, 170};//舵机总旋转角度
+    public static double[] x1 ={0.09,0.24,0.87,0.47,0.32};
     public static double[] y1 ={0,0,180,180,0};
     public static double[] x2 ={0.37,0.58,0.52,0.13,0.69};
     public static double[] y2 ={90,90,90,90,90};
